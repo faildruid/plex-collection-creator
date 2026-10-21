@@ -1,0 +1,32 @@
+{
+  "plex-url": "http://localhost:32400",
+  "plex-token": "YOUR_PLEX_TOKEN_HERE",
+  "map-path": "/mnt/media:/data",
+  "collections": [
+    {
+      "name": "Action",
+      "library": "All Movies",
+      "path": "/mnt/media/movies/Action"
+    },
+    {
+      "name": "Aliens & Predator",
+      "library": "All Movies",
+      "path": "/mnt/media/movies/Aliens"
+    },
+    {
+      "name": "Comedies",
+      "library": "All Movies",
+      "path": "/mnt/media/movies/Comedy"
+    },
+    {
+      "name": "Science Fiction",
+      "library": "All Movies",
+      "path": "/mnt/media/movies/SciFi"
+    },
+    {
+      "name": "Star Trek",
+      "library": "All Movies",
+      "path": "/mnt/media/movies/Star Trek"
+    }
+  ]
+}
