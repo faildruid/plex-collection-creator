@@ -125,15 +125,34 @@ Files are matched by their full path, so the script must see the same paths Plex
 
 A long list of "not in Plex" files in the output is usually a sign that path mapping is needed.
 
-## Running automatically
+## Running via crontab
 
-To keep a collection in sync, add a cron job (`crontab -e`):
+To keep the collections in sync automatically, add a cron entry with `crontab -e`:
 
-```cron
-0 4 * * * cd /path/to/project && PLEX_TOKEN=your_token_here uv run main.py >> /var/log/plex_collection.log 2>&1
+```bash
+crontab -e
 ```
 
-Run the script via `uv` so cron uses the project environment and dependency lockfile.
+Then add a line similar to this:
+
+```cron
+0 4 * * * cd /path/to/project && PLEX_TOKEN=your_token_here /home/your-user/.local/bin/uv run main.py >> /var/log/plex_collection.log 2>&1
+```
+
+Notes:
+
+- Replace `/path/to/project` with the folder where this repository is checked out.
+- Replace `your_token_here` with your Plex token, or export it in the cron environment if you prefer.
+- Use the full path to `uv` if it is not already on the cron `PATH`.
+- The `>> /var/log/plex_collection.log 2>&1` part keeps a log of the script output.
+
+If you want to ensure cron has the same shell environment as your normal login shell, you can also wrap the command like this:
+
+```cron
+0 4 * * * /bin/bash -lc 'cd /path/to/project && export PLEX_TOKEN=your_token_here && ~/.local/bin/uv run main.py >> /var/log/plex_collection.log 2>&1'
+```
+
+This makes the script run via `uv`, which ensures the project environment and lockfile are used correctly.
 
 ## Troubleshooting
 
