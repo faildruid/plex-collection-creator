@@ -2,6 +2,12 @@
   "plex-url": "http://localhost:32400",
   "plex-token": "YOUR_PLEX_TOKEN_HERE",
   "map-path": "/mnt/media:/data",
+  "logging": {
+    "level": "WARNING",
+    "console": true,
+    "file": true,
+    "file-path": "plex_collection.log"
+  },
   "collections": [
     {
       "name": "Action",

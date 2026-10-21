@@ -79,6 +79,12 @@ uv run main.py [options]
   "plex-url": "http://localhost:32400",
   "plex-token": "your_token_here",
   "map-path": "/mnt/media:/data",
+  "logging": {
+    "level": "WARNING",
+    "console": true,
+    "file": true,
+    "file-path": "plex_collection.log"
+  },
   "collections": [
     {
       "name": "Action",
@@ -97,6 +103,30 @@ uv run main.py [options]
 | `--dry-run` | Show what would happen without changing anything |
 
 Connection values are read from `config.json` (`plex-url`, `plex-token`) or environment variables (`PLEX_URL`, `PLEX_TOKEN`). The optional `map-path` config value translates prefixes when Plex sees files under a different path.
+
+### Logging configuration
+
+Logging is configured from `config.json` using a `logging` object:
+
+```json
+{
+  "logging": {
+    "level": "WARNING",
+    "console": true,
+    "file": true,
+    "file-path": "plex_collection.log"
+  }
+}
+```
+
+Defaults (if omitted) are:
+
+- `level`: `WARNING`
+- `console`: `true`
+- `file`: `true`
+- `file-path`: `plex_collection.log` (relative paths are resolved from the project folder)
+
+Valid levels are `DEBUG`, `INFO`, `WARNING`, `ERROR`, and `CRITICAL`.
 
 ### Examples
 
@@ -136,7 +166,7 @@ crontab -e
 Then add a line similar to this:
 
 ```cron
-0 4 * * * cd /path/to/project && PLEX_TOKEN=your_token_here /home/your-user/.local/bin/uv run main.py >> /var/log/plex_collection.log 2>&1
+0 4 * * * cd /path/to/project && PLEX_TOKEN=your_token_here /home/your-user/.local/bin/uv run main.py >> /home/your-user/plex_collection.log 2>&1
 ```
 
 Notes:
@@ -144,12 +174,13 @@ Notes:
 - Replace `/path/to/project` with the folder where this repository is checked out.
 - Replace `your_token_here` with your Plex token, or export it in the cron environment if you prefer.
 - Use the full path to `uv` if it is not already on the cron `PATH`.
-- The `>> /var/log/plex_collection.log 2>&1` part keeps a log of the script output.
+- The `>> /home/your-user/plex_collection.log 2>&1` part keeps a log of the script output in a user-writable location.
+- `/var/log` is usually root-owned. If you use it, create the file with appropriate permissions first.
 
 If you want to ensure cron has the same shell environment as your normal login shell, you can also wrap the command like this:
 
 ```cron
-0 4 * * * /bin/bash -lc 'cd /path/to/project && export PLEX_TOKEN=your_token_here && ~/.local/bin/uv run main.py >> /var/log/plex_collection.log 2>&1'
+0 4 * * * /bin/bash -lc 'cd /path/to/project && export PLEX_TOKEN=your_token_here && ~/.local/bin/uv run main.py >> ~/plex_collection.log 2>&1'
 ```
 
 This makes the script run via `uv`, which ensures the project environment and lockfile are used correctly.
@@ -168,6 +199,9 @@ Either Plex has not scanned them yet (refresh the library and try again), they b
 **`NotFound` error for the library**
 The `library` name in `config.json` must match the library name shown in Plex exactly, including capitalisation and spaces.
 
+**`permission denied: /var/log/plex_collection.log`**
+Your user cannot write to `/var/log`. Use a user-writable log file path instead (for example `~/plex_collection.log`), or create and chown the log file with sudo.
+
 **`Fatal Python error: init_fs_encoding ... No module named 'encodings'`**
 This is a Python environment problem, not a problem with the script. Common fixes:
 
@@ -177,6 +211,13 @@ This is a Python environment problem, not a problem with the script. Common fixe
 
 **`401 Unauthorized`**
 The token is wrong or expired. Fetch it again from `Preferences.xml`.
+
+**`Invalid logging configuration: ...`**
+The `logging` section in `config.json` has invalid types or values. Check that:
+- `logging.level` is one of `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`
+- `logging.console` and `logging.file` are booleans
+- at least one of `logging.console` or `logging.file` is `true`
+- `logging.file-path` is a non-empty string
 
 ## Supported file types
 
